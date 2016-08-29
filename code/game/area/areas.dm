@@ -17,10 +17,7 @@
 		power_equip = 0
 		power_environ = 0
 
-	if(lighting_use_dynamic)
-		luminosity = 0
-	else
-		luminosity = 1
+	luminosity = 1
 
 	..()
 

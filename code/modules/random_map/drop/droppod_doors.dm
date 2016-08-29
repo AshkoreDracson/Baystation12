@@ -6,15 +6,14 @@
 	anchored = 1
 	density = 1
 	opacity = 1
-	plane = OBJ_PLANE
-	layer = ABOVE_DOOR_LAYER
+	layer = TURF_LAYER + 0.1
 	var/deploying
 	var/deployed
 
 /obj/structure/droppod_door/New(var/newloc, var/autoopen)
 	..(newloc)
 	if(autoopen)
-		spawn(10 SECONDS)
+		spawn(100)
 			deploy()
 
 /obj/structure/droppod_door/attack_ai(var/mob/user)
@@ -28,7 +27,7 @@
 
 /obj/structure/droppod_door/attack_hand(var/mob/user)
 	if(deploying) return
-	to_chat(user, "<span class='danger'>You prime the explosive bolts. Better get clear!</span>")
+	user << "<span class='danger'>You prime the explosive bolts. Better get clear!</span>"
 	sleep(30)
 	deploy()
 
@@ -49,10 +48,10 @@
 	// Overwrite turfs.
 	var/turf/origin = get_turf(src)
 	origin.ChangeTurf(/turf/simulated/floor/reinforced)
-	origin.set_light(0) // Forcing updates
+	origin.kill_light() // Forcing updates
 	var/turf/T = get_step(origin, src.dir)
 	T.ChangeTurf(/turf/simulated/floor/reinforced)
-	T.set_light(0) // Forcing updates
+	T.kill_light() // Forcing updates
 
 	// Destroy turf contents.
 	for(var/obj/O in origin)

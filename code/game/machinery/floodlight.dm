@@ -6,14 +6,16 @@
 	icon_state = "flood00"
 	density = 1
 	var/on = 0
-	var/obj/item/weapon/cell/cell = null
+	var/obj/item/weapon/cell/high/cell = null
 	var/use = 200 // 200W light
 	var/unlocked = 0
 	var/open = 0
 	var/brightness_on = 8		//can't remember what the maxed out value is
 
 /obj/machinery/floodlight/New()
-	cell = new/obj/item/weapon/cell/crap(src)
+	src.cell = new(src)
+	cell.maxcharge = 100
+	cell.charge = 100 // 30 minutes @ 200W (assuming no lag)
 	..()
 
 /obj/machinery/floodlight/update_icon()
@@ -67,7 +69,7 @@
 		turn_off(1)
 	else
 		if(!turn_on(1))
-			to_chat(user, "You try to turn on \the [src] but it does not work.")
+			user << "You try to turn on \the [src] but it does not work."
 
 
 /obj/machinery/floodlight/attack_hand(mob/user as mob)
@@ -84,8 +86,8 @@
 
 		src.cell = null
 		on = 0
-		set_light(0)
-		to_chat(user, "You remove the power cell")
+		kill_light()
+		user << "You remove the power cell"
 		update_icon()
 		return
 
@@ -93,7 +95,7 @@
 		turn_off(1)
 	else
 		if(!turn_on(1))
-			to_chat(user, "You try to turn on \the [src] but it does not work.")
+			user << "You try to turn on \the [src] but it does not work."
 
 	update_icon()
 
@@ -103,29 +105,29 @@
 		if (!open)
 			if(unlocked)
 				unlocked = 0
-				to_chat(user, "You screw the battery panel in place.")
+				user << "You screw the battery panel in place."
 			else
 				unlocked = 1
-				to_chat(user, "You unscrew the battery panel.")
+				user << "You unscrew the battery panel."
 
 	if (istype(W, /obj/item/weapon/crowbar))
 		if(unlocked)
 			if(open)
 				open = 0
 				overlays = null
-				to_chat(user, "You crowbar the battery panel in place.")
+				user << "You crowbar the battery panel in place."
 			else
 				if(unlocked)
 					open = 1
-					to_chat(user, "You remove the battery panel.")
+					user << "You remove the battery panel."
 
 	if (istype(W, /obj/item/weapon/cell))
 		if(open)
 			if(cell)
-				to_chat(user, "There is a power cell already installed.")
+				user << "There is a power cell already installed."
 			else
 				user.drop_item()
 				W.loc = src
 				cell = W
-				to_chat(user, "You insert the power cell.")
+				user << "You insert the power cell."
 	update_icon()

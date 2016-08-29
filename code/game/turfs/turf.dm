@@ -1,10 +1,6 @@
 /turf
 	icon = 'icons/turf/floors.dmi'
 	level = 1
-
-	plane = TURF_PLANE
-	layer = BASE_TURF_LAYER
-
 	var/holy = 0
 
 	// Initial air contents (in moles)
@@ -25,7 +21,6 @@
 	var/icon_old = null
 	var/pathweight = 1          // How much does it cost to pathfind over this turf?
 	var/blessed = 0             // Has the turf been blessed?
-	var/dynamic_lighting = 1    // Does the turf use dynamic lighting?
 
 	var/list/decals
 
@@ -36,11 +31,6 @@
 			src.Entered(AM)
 			return
 	turfs |= src
-
-	if(dynamic_lighting)
-		luminosity = 0
-	else
-		luminosity = 1
 
 /turf/proc/update_icon()
 	return
@@ -221,7 +211,7 @@ var/const/enterloopsanity = 100
 		clean_blood()
 		remove_cleanables()
 	else
-		to_chat(user, "<span class='warning'>\The [source] is too dry to wash that.</span>")
+		user << "<span class='warning'>\The [source] is too dry to wash that.</span>"
 	source.reagents.trans_to_turf(src, 1, 10)	//10 is the multiplier for the reaction effect. probably needed to wet the floor properly.
 
 /turf/proc/remove_cleanables()

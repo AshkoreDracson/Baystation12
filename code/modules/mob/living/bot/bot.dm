@@ -3,6 +3,7 @@
 	health = 20
 	maxHealth = 20
 	icon = 'icons/obj/aibots.dmi'
+	layer = MOB_LAYER
 	universal_speak = 1
 	density = 0
 	var/obj/item/weapon/card/id/botcard = null
@@ -52,25 +53,25 @@
 	explode()
 
 /mob/living/bot/attackby(var/obj/item/O, var/mob/user)
-	if(O.GetIdCard())
+	if(O.GetID())
 		if(access_scanner.allowed(user) && !open && !emagged)
 			locked = !locked
-			to_chat(user, "<span class='notice'>Controls are now [locked ? "locked." : "unlocked."]</span>")
+			user << "<span class='notice'>Controls are now [locked ? "locked." : "unlocked."]</span>"
 			attack_hand(user)
 		else
 			if(emagged)
-				to_chat(user, "<span class='warning'>ERROR</span>")
+				user << "<span class='warning'>ERROR</span>"
 			if(open)
-				to_chat(user, "<span class='warning'>Please close the access panel before locking it.</span>")
+				user << "<span class='warning'>Please close the access panel before locking it.</span>"
 			else
-				to_chat(user, "<span class='warning'>Access denied.</span>")
+				user << "<span class='warning'>Access denied.</span>"
 		return
 	else if(istype(O, /obj/item/weapon/screwdriver))
 		if(!locked)
 			open = !open
-			to_chat(user, "<span class='notice'>Maintenance panel is now [open ? "opened" : "closed"].</span>")
+			user << "<span class='notice'>Maintenance panel is now [open ? "opened" : "closed"].</span>"
 		else
-			to_chat(user, "<span class='notice'>You need to unlock the controls first.</span>")
+			user << "<span class='notice'>You need to unlock the controls first.</span>"
 		return
 	else if(istype(O, /obj/item/weapon/weldingtool))
 		if(health < maxHealth)
@@ -78,9 +79,9 @@
 				health = min(maxHealth, health + 10)
 				user.visible_message("<span class='notice'>[user] repairs [src].</span>","<span class='notice'>You repair [src].</span>")
 			else
-				to_chat(user, "<span class='notice'>Unable to repair with the maintenance panel closed.</span>")
+				user << "<span class='notice'>Unable to repair with the maintenance panel closed.</span>"
 		else
-			to_chat(user, "<span class='notice'>[src] does not need a repair.</span>")
+			user << "<span class='notice'>[src] does not need a repair.</span>"
 		return
 	else
 		..()
@@ -116,7 +117,7 @@
 
 /mob/living/bot/proc/turn_off()
 	on = 0
-	set_light(0)
+	kill_light()
 	update_icons()
 
 /mob/living/bot/proc/explode()
@@ -133,6 +134,6 @@
 					continue
 			return 0
 	return 1
-				
-			
-	
+
+
+

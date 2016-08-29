@@ -44,7 +44,6 @@
 	var/obj/item/weapon/computer_hardware/card_slot/card_slot						// ID Card slot component of this computer. Mostly for HoP modification console that needs ID slot for modification.
 	var/obj/item/weapon/computer_hardware/nano_printer/nano_printer					// Nano Printer component of this computer, for your everyday paperwork needs.
 	var/obj/item/weapon/computer_hardware/hard_drive/portable/portable_drive		// Portable data storage
-	var/obj/item/weapon/computer_hardware/ai_slot/ai_slot							// AI slot, an intellicard housing that allows modifications of AIs.
 
 	var/list/idle_threads = list()							// Idle programs on background. They still receive process calls but can't be interacted with.
 
@@ -56,56 +55,41 @@
 	set src in view(1)
 
 	if(usr.incapacitated() || !istype(usr, /mob/living))
-		to_chat(usr, "<span class='warning'>You can't do that.</span>")
+		usr << "<span class='warning'>You can't do that.</span>"
 		return
 
 	if(!Adjacent(usr))
-		to_chat(usr, "<span class='warning'>You can't reach it.</span>")
+		usr << "<span class='warning'>You can't reach it.</span>"
 		return
 
 	proc_eject_id(usr)
 
 // Eject ID card from computer, if it has ID slot with card inside.
 /obj/item/modular_computer/verb/eject_usb()
-	set name = "Eject Portable Storage"
+	set name = "Eject Portable Device"
 	set category = "Object"
 	set src in view(1)
 
 	if(usr.incapacitated() || !istype(usr, /mob/living))
-		to_chat(usr, "<span class='warning'>You can't do that.</span>")
+		usr << "<span class='warning'>You can't do that.</span>"
 		return
 
 	if(!Adjacent(usr))
-		to_chat(usr, "<span class='warning'>You can't reach it.</span>")
+		usr << "<span class='warning'>You can't reach it.</span>"
 		return
 
 	proc_eject_usb(usr)
-
-/obj/item/modular_computer/verb/eject_ai()
-	set name = "Eject Portable Storage"
-	set category = "Object"
-	set src in view(1)
-
-	if(usr.incapacitated() || !istype(usr, /mob/living))
-		to_chat(usr, "<span class='warning'>You can't do that.</span>")
-		return
-
-	if(!Adjacent(usr))
-		to_chat(usr, "<span class='warning'>You can't reach it.</span>")
-		return
-
-	proc_eject_ai(usr)
 
 /obj/item/modular_computer/proc/proc_eject_id(mob/user)
 	if(!user)
 		user = usr
 
 	if(!card_slot)
-		to_chat(user, "\The [src] does not have an ID card slot")
+		user << "\The [src] does not have an ID card slot"
 		return
 
 	if(!card_slot.stored_card)
-		to_chat(user, "There is no card in \the [src]")
+		user << "There is no card in \the [src]"
 		return
 
 	if(active_program)
@@ -117,31 +101,17 @@
 	card_slot.stored_card.forceMove(get_turf(src))
 	card_slot.stored_card = null
 	update_uis()
-	to_chat(user, "You remove the card from \the [src]")
-
+	user << "You remove the card from \the [src]"
 
 /obj/item/modular_computer/proc/proc_eject_usb(mob/user)
 	if(!user)
 		user = usr
 
 	if(!portable_drive)
-		to_chat(user, "There is no portable device connected to \the [src].")
+		user << "There is no portable device connected to \the [src]."
 		return
 
 	uninstall_component(user, portable_drive)
-	update_uis()
-
-/obj/item/modular_computer/proc/proc_eject_ai(mob/user)
-	if(!user)
-		user = usr
-
-	if(!ai_slot || !ai_slot.stored_card)
-		to_chat(user, "There is no intellicard connected to \the [src].")
-		return
-
-	ai_slot.stored_card.forceMove(get_turf(src))
-	ai_slot.stored_card = null
-	ai_slot.update_power_usage()
 	update_uis()
 
 /obj/item/modular_computer/attack_ghost(var/mob/observer/ghost/user)
@@ -154,19 +124,19 @@
 
 /obj/item/modular_computer/emag_act(var/remaining_charges, var/mob/user)
 	if(computer_emagged)
-		to_chat(user, "\The [src] was already emagged.")
+		user << "\The [src] was already emagged."
 		return NO_EMAG_ACT
 	else
 		computer_emagged = 1
-		to_chat(user, "You emag \the [src]. It's screen briefly shows a \"OVERRIDE ACCEPTED: New software downloads available.\" message.")
+		user << "You emag \the [src]. It's screen briefly shows a \"OVERRIDE ACCEPTED: New software downloads available.\" message."
 		return 1
 
 /obj/item/modular_computer/examine(var/mob/user)
 	..()
 	if(damage > broken_damage)
-		to_chat(user, "<span class='danger'>It is heavily damaged!</span>")
+		user << "<span class='danger'>It is heavily damaged!</span>"
 	else if(damage)
-		to_chat(user, "It is damaged.")
+		user << "It is damaged."
 
 /obj/item/modular_computer/New()
 	processing_objects.Add(src)
@@ -186,7 +156,7 @@
 
 	overlays.Cut()
 	if(!enabled)
-		set_light(0)
+		kill_light()
 		return
 	set_light(light_strength)
 	if(active_program)
@@ -265,23 +235,23 @@
 	var/issynth = issilicon(user) // Robots and AIs get different activation messages.
 	if(damage > broken_damage)
 		if(issynth)
-			to_chat(user, "You send an activation signal to \the [src], but it responds with an error code. It must be damaged.")
+			user << "You send an activation signal to \the [src], but it responds with an error code. It must be damaged."
 		else
-			to_chat(user, "You press the power button, but the computer fails to boot up, displaying variety of errors before shutting down again.")
+			user << "You press the power button, but the computer fails to boot up, displaying variety of errors before shutting down again."
 		return
 	if(processor_unit && ((battery_module && battery_module.battery.charge && battery_module.check_functionality()) || check_power_override())) // Battery-run and charged or non-battery but powered by APC.
 		if(issynth)
-			to_chat(user, "You send an activation signal to \the [src], turning it on")
+			user << "You send an activation signal to \the [src], turning it on"
 		else
-			to_chat(user, "You press the power button and start up \the [src]")
+			user << "You press the power button and start up \the [src]"
 		enabled = 1
 		update_icon()
 		ui_interact(user)
 	else // Unpowered
 		if(issynth)
-			to_chat(user, "You send an activation signal to \the [src] but it does not respond")
+			user << "You send an activation signal to \the [src] but it does not respond"
 		else
-			to_chat(user, "You press the power button but \the [src] does not respond")
+			user << "You press the power button but \the [src] does not respond"
 
 // Process currently calls handle_power(), may be expanded in future if more things are added.
 /obj/item/modular_computer/process()
@@ -448,7 +418,7 @@
 
 		P.kill_program(1)
 		update_uis()
-		to_chat(user, "<span class='notice'>Program [P.filename].[P.filetype] with PID [rand(100,999)] has been killed.</span>")
+		user << "<span class='notice'>Program [P.filename].[P.filetype] with PID [rand(100,999)] has been killed.</span>"
 
 	if( href_list["PC_runprogram"] )
 		var/prog = href_list["PC_runprogram"]
@@ -458,7 +428,7 @@
 			P = hard_drive.find_file_by_name(prog)
 
 		if(!P || !istype(P)) // Program not found or it's not executable program.
-			to_chat(user, "<span class='danger'>\The [src]'s screen shows \"I/O ERROR - Unable to run program\" warning.</span>")
+			user << "<span class='danger'>\The [src]'s screen shows \"I/O ERROR - Unable to run program\" warning.</span>"
 			return
 
 		P.computer = src
@@ -475,11 +445,11 @@
 			return
 
 		if(idle_threads.len >= processor_unit.max_idle_programs+1)
-			to_chat(user, "<span class='notice'>\The [src] displays a \"Maximal CPU load reached. Unable to run another program.\" error</span>")
+			user << "<span class='notice'>\The [src] displays a \"Maximal CPU load reached. Unable to run another program.\" error</span>"
 			return
 
 		if(P.requires_ntnet && !get_ntnet_status(P.requires_ntnet_feature)) // The program requires NTNet connection, but we are not connected to NTNet.
-			to_chat(user, "<span class='danger'>\The [src]'s screen shows \"NETWORK ERROR - Unable to connect to NTNet. Please retry. If problem persists contact your system administrator.\" warning.</span>")
+			user << "<span class='danger'>\The [src]'s screen shows \"NETWORK ERROR - Unable to connect to NTNet. Please retry. If problem persists contact your system administrator.\" warning.</span>"
 			return
 
 		if(P.run_program(user))
@@ -523,36 +493,32 @@
 	if(istype(W, /obj/item/weapon/card/id)) // ID Card, try to insert it.
 		var/obj/item/weapon/card/id/I = W
 		if(!card_slot)
-			to_chat(user, "You try to insert \the [I] into \the [src], but it does not have an ID card slot installed.")
+			user << "You try to insert \the [I] into \the [src], but it does not have an ID card slot installed."
 			return
 
 		if(card_slot.stored_card)
-			to_chat(user, "You try to insert \the [I] into \the [src], but it's ID card slot is occupied.")
+			user << "You try to insert \the [I] into \the [src], but it's ID card slot is occupied."
 			return
 		user.drop_from_inventory(I)
 		card_slot.stored_card = I
 		I.forceMove(src)
 		update_uis()
-		to_chat(user, "You insert \the [I] into \the [src].")
+		user << "You insert \the [I] into \the [src]."
 		return
 	if(istype(W, /obj/item/weapon/paper))
 		if(!nano_printer)
 			return
 		nano_printer.attackby(W, user)
-	if(istype(W, /obj/item/weapon/aicard))
-		if(!ai_slot)
-			return
-		ai_slot.attackby(W, user)
 	if(istype(W, /obj/item/weapon/computer_hardware))
 		var/obj/item/weapon/computer_hardware/C = W
 		if(C.hardware_size <= max_hardware_size)
 			try_install_component(user, C)
 		else
-			to_chat(user, "This component is too large for \the [src].")
+			user << "This component is too large for \the [src]."
 	if(istype(W, /obj/item/weapon/wrench))
 		var/list/components = get_all_components()
 		if(components.len)
-			to_chat(user, "Remove all components from \the [src] before disassembling it.")
+			user << "Remove all components from \the [src] before disassembling it."
 			return
 		new /obj/item/stack/material/steel( get_turf(src.loc), steel_sheet_cost )
 		src.visible_message("\The [src] has been disassembled by [user].")
@@ -562,23 +528,23 @@
 	if(istype(W, /obj/item/weapon/weldingtool))
 		var/obj/item/weapon/weldingtool/WT = W
 		if(!WT.isOn())
-			to_chat(user, "\The [W] is off.")
+			user << "\The [W] is off."
 			return
 
 		if(!damage)
-			to_chat(user, "\The [src] does not require repairs.")
+			user << "\The [src] does not require repairs."
 			return
 
-		to_chat(user, "You begin repairing damage to \the [src]...")
+		user << "You begin repairing damage to \the [src]..."
 		if(WT.remove_fuel(round(damage/75)) && do_after(usr, damage/10))
 			damage = 0
-			to_chat(user, "You repair \the [src].")
+			user << "You repair \the [src]."
 		return
 
 	if(istype(W, /obj/item/weapon/screwdriver))
 		var/list/all_components = get_all_components()
 		if(!all_components.len)
-			to_chat(user, "This device doesn't have any components installed.")
+			user << "This device doesn't have any components installed."
 			return
 		var/list/component_names = list()
 		for(var/obj/item/weapon/computer_hardware/H in all_components)
@@ -612,54 +578,48 @@
 	// "USB" flash drive.
 	if(istype(H, /obj/item/weapon/computer_hardware/hard_drive/portable))
 		if(portable_drive)
-			to_chat(user, "This computer's portable drive slot is already occupied by \the [portable_drive].")
+			user << "This computer's portable drive slot is already occupied by \the [portable_drive]."
 			return
 		found = 1
 		portable_drive = H
 	else if(istype(H, /obj/item/weapon/computer_hardware/hard_drive))
 		if(hard_drive)
-			to_chat(user, "This computer's hard drive slot is already occupied by \the [hard_drive].")
+			user << "This computer's hard drive slot is already occupied by \the [hard_drive]."
 			return
 		found = 1
 		hard_drive = H
 	else if(istype(H, /obj/item/weapon/computer_hardware/network_card))
 		if(network_card)
-			to_chat(user, "This computer's network card slot is already occupied by \the [network_card].")
+			user << "This computer's network card slot is already occupied by \the [network_card]."
 			return
 		found = 1
 		network_card = H
 	else if(istype(H, /obj/item/weapon/computer_hardware/nano_printer))
 		if(nano_printer)
-			to_chat(user, "This computer's nano printer slot is already occupied by \the [nano_printer].")
+			user << "This computer's nano printer slot is already occupied by \the [nano_printer]."
 			return
 		found = 1
 		nano_printer = H
 	else if(istype(H, /obj/item/weapon/computer_hardware/card_slot))
 		if(card_slot)
-			to_chat(user, "This computer's card slot is already occupied by \the [card_slot].")
+			user << "This computer's card slot is already occupied by \the [card_slot]."
 			return
 		found = 1
 		card_slot = H
 	else if(istype(H, /obj/item/weapon/computer_hardware/battery_module))
 		if(battery_module)
-			to_chat(user, "This computer's battery slot is already occupied by \the [battery_module].")
+			user << "This computer's battery slot is already occupied by \the [battery_module]."
 			return
 		found = 1
 		battery_module = H
 	else if(istype(H, /obj/item/weapon/computer_hardware/processor_unit))
 		if(processor_unit)
-			to_chat(user, "This computer's processor slot is already occupied by \the [processor_unit].")
+			user << "This computer's processor slot is already occupied by \the [processor_unit]."
 			return
 		found = 1
 		processor_unit = H
-	else if(istype(H, /obj/item/weapon/computer_hardware/ai_slot))
-		if(ai_slot)
-			to_chat(user, "This computer's intellicard slot is already occupied by \the [ai_slot].")
-			return
-		found = 1
-		ai_slot = H
 	if(found)
-		to_chat(user, "You install \the [H] into \the [src]")
+		user << "You install \the [H] into \the [src]"
 		H.holder2 = src
 		user.drop_from_inventory(H)
 		H.forceMove(src)
@@ -689,17 +649,14 @@
 		processor_unit = null
 		found = 1
 		critical = 1
-	if(ai_slot == H)
-		ai_slot = null
-		found = 1
 	if(found)
 		if(user)
-			to_chat(user, "You remove \the [H] from \the [src].")
+			user << "You remove \the [H] from \the [src]."
 		H.forceMove(get_turf(src))
 		H.holder2 = null
 	if(critical && enabled)
 		if(user)
-			to_chat(user, "<span class='danger'>\The [src]'s screen freezes for few seconds and then displays an \"HARDWARE ERROR: Critical component disconnected. Please verify component connection and reboot the device. If the problem persists contact technical support for assistance.\" warning.</span>")
+			user << "<span class='danger'>\The [src]'s screen freezes for few seconds and then displays an \"HARDWARE ERROR: Critical component disconnected. Please verify component connection and reboot the device. If the problem persists contact technical support for assistance.\" warning.</span>"
 		shutdown_computer()
 		update_icon()
 
@@ -720,8 +677,6 @@
 		return battery_module
 	if(processor_unit && (processor_unit.name == name))
 		return processor_unit
-	if(ai_slot && (ai_slot.name == name))
-		return ai_slot
 	return null
 
 // Returns list of all components
@@ -741,8 +696,6 @@
 		all_components.Add(battery_module)
 	if(processor_unit)
 		all_components.Add(processor_unit)
-	if(ai_slot)
-		all_components.Add(ai_slot)
 	return all_components
 
 /obj/item/modular_computer/proc/update_uis()
@@ -824,10 +777,3 @@
 			take_damage(Proj.damage, Proj.damage / 3, 0)
 		if(BURN)
 			take_damage(Proj.damage, Proj.damage / 1.5)
-
-// Used by camera monitor program
-/obj/item/modular_computer/check_eye(var/mob/user)
-	if(active_program)
-		return active_program.check_eye(user)
-	else
-		return ..()

@@ -26,7 +26,7 @@
 	new /obj/item/device/flashlight/lantern(src)
 	new /obj/item/weapon/shovel(src)
 	new /obj/item/weapon/pickaxe(src)
-	new /obj/item/clothing/glasses/meson(src)
+	new /obj/item/clothing/glasses/material(src)
 
 /******************************Lantern*******************************/
 
@@ -34,7 +34,8 @@
 	name = "lantern"
 	icon_state = "lantern"
 	desc = "A mining lantern."
-	brightness_on = 6			// luminosity when on
+	light_power = 6			// luminosity when on
+	light_range = 6
 
 /*****************************Pickaxe********************************/
 
@@ -48,7 +49,7 @@
 	throwforce = 4.0
 	icon_state = "pickaxe"
 	item_state = "jackhammer"
-	w_class = ITEM_SIZE_HUGE
+	w_class = 5
 	matter = list(DEFAULT_WALL_MATERIAL = 3750)
 	var/digspeed = 40 //moving the delay to an item var so R&D can make improved picks. --NEO
 	origin_tech = list(TECH_MATERIAL = 1, TECH_ENGINEERING = 1)
@@ -57,7 +58,7 @@
 	var/drill_verb = "drilling"
 	sharp = 1
 
-	var/excavation_amount = 200
+	var/excavation_amount = 100
 
 /obj/item/weapon/pickaxe/hammer
 	name = "sledgehammer"
@@ -103,7 +104,7 @@
 	name = "plasma cutter"
 	icon_state = "plasmacutter"
 	item_state = "gun"
-	w_class = ITEM_SIZE_NORMAL //it is smaller than the pickaxe
+	w_class = 3.0 //it is smaller than the pickaxe
 	damtype = "fire"
 	digspeed = 20 //Can slice though normal walls, all girders, or be used in reinforced wall deconstruction/ light thermite on fire
 	origin_tech = list(TECH_MATERIAL = 4, TECH_PHORON = 3, TECH_ENGINEERING = 3)
@@ -151,7 +152,7 @@
 	force = 8.0
 	throwforce = 4.0
 	item_state = "shovel"
-	w_class = ITEM_SIZE_HUGE
+	w_class = 5
 	origin_tech = list(TECH_MATERIAL = 1, TECH_ENGINEERING = 1)
 	matter = list(DEFAULT_WALL_MATERIAL = 50)
 	attack_verb = list("bashed", "bludgeoned", "thrashed", "whacked")
@@ -165,7 +166,7 @@
 	item_state = "spade"
 	force = 5.0
 	throwforce = 7.0
-	w_class = ITEM_SIZE_SMALL
+	w_class = 2.0
 
 
 /**********************Mining car (Crate like thing, not the rail car)**************************/
@@ -229,12 +230,12 @@
 
 	var/turf/T = get_turf(src)
 	if(!T || !istype(T,/turf/simulated/floor/asteroid))
-		to_chat(user, "The flag won't stand up in this terrain.")
+		user << "The flag won't stand up in this terrain."
 		return
 
 	var/obj/item/stack/flag/F = locate() in T
 	if(F && F.upright)
-		to_chat(user, "There is already a flag here.")
+		user << "There is already a flag here."
 		return
 
 	var/obj/item/stack/flag/newflag = new src.type(T)

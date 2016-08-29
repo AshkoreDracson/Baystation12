@@ -7,8 +7,7 @@
 /obj/vehicle
 	name = "vehicle"
 	icon = 'icons/obj/vehicles.dmi'
-	plane = ABOVE_HUMAN_PLANE
-	layer = ABOVE_HUMAN_LAYER
+	layer = MOB_LAYER + 0.1 //so it sits above objects including mobs
 	density = 1
 	anchored = 1
 	animate_movement=1
@@ -17,7 +16,7 @@
 	can_buckle = 1
 	buckle_movable = 1
 	buckle_lying = 0
-	
+
 	var/attack_log = null
 	var/on = 0
 	var/health = 0	//do not forget to set health for your vehicle!
@@ -32,7 +31,7 @@
 	var/move_delay = 1	//set this to limit the speed of the vehicle
 
 	var/obj/item/weapon/cell/cell
-	var/charge_use = 200 //W
+	var/charge_use = 5	//set this to adjust the amount of power the vehicle uses per move
 
 	var/atom/movable/load		//all vehicles can take a load, since they should all be a least drivable
 	var/load_item_visible = 1	//set if the loaded item should be overlayed on the vehicle sprite
@@ -49,7 +48,7 @@
 /obj/vehicle/Move()
 	if(world.time > l_move_time + move_delay)
 		var/old_loc = get_turf(src)
-		if(on && powered && cell.charge < (charge_use * CELLRATE))
+		if(on && powered && cell.charge < charge_use)
 			turn_off()
 
 		var/init_anc = anchored
@@ -62,7 +61,7 @@
 		anchored = init_anc
 
 		if(on && powered)
-			cell.use(charge_use * CELLRATE)
+			cell.use(charge_use)
 
 		//Dummy loads do not have to be moved as they are just an overlay
 		//See load_object() proc in cargo_trains.dm for an example
@@ -81,7 +80,7 @@
 		if(!locked)
 			open = !open
 			update_icon()
-			to_chat(user, "<span class='notice'>Maintenance panel is now [open ? "opened" : "closed"].</span>")
+			user << "<span class='notice'>Maintenance panel is now [open ? "opened" : "closed"].</span>"
 	else if(istype(W, /obj/item/weapon/crowbar) && cell && open)
 		remove_cell(user)
 
@@ -94,13 +93,13 @@
 				if(open)
 					health = min(maxhealth, health+10)
 					user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
-					user.visible_message("<span class='warning'>\The [user] repairs \the [src]!</span>","<span class='notice'>You repair \the [src]!</span>")
+					user.visible_message("\red [user] repairs [src]!","\blue You repair [src]!")
 				else
-					to_chat(user, "<span class='notice'>Unable to repair with the maintenance panel closed.</span>")
+					user << "<span class='notice'>Unable to repair with the maintenance panel closed.</span>"
 			else
-				to_chat(user, "<span class='notice'>[src] does not need a repair.</span>")
+				user << "<span class='notice'>[src] does not need a repair.</span>"
 		else
-			to_chat(user, "<span class='notice'>Unable to repair while [src] is off.</span>")
+			user << "<span class='notice'>Unable to repair while [src] is off.</span>"
 	else if(hasvar(W,"force") && hasvar(W,"damtype"))
 		user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 		switch(W.damtype)
@@ -139,7 +138,7 @@
 /obj/vehicle/emp_act(severity)
 	var/was_on = on
 	stat |= EMPED
-	var/obj/effect/overlay/pulse2 = new /obj/effect/overlay(loc)
+	var/obj/effect/overlay/pulse2 = PoolOrNew(/obj/effect/overlay, src.loc)
 	pulse2.icon = 'icons/effects/effects.dmi'
 	pulse2.icon_state = "empdisable"
 	pulse2.name = "emp sparks"
@@ -169,7 +168,7 @@
 /obj/vehicle/proc/turn_on()
 	if(stat)
 		return 0
-	if(powered && cell.charge < (charge_use * CELLRATE))
+	if(powered && cell.charge < charge_use)
 		return 0
 	on = 1
 	set_light(initial(light_range))
@@ -178,7 +177,7 @@
 
 /obj/vehicle/proc/turn_off()
 	on = 0
-	set_light(0)
+	kill_light()
 	update_icon()
 
 /obj/vehicle/emag_act(var/remaining_charges, mob/user as mob)
@@ -186,15 +185,15 @@
 		emagged = 1
 		if(locked)
 			locked = 0
-			to_chat(user, "<span class='warning'>You bypass [src]'s controls.</span>")
+			user << "<span class='warning'>You bypass [src]'s controls.</span>"
 		return 1
 
 /obj/vehicle/proc/explode()
 	src.visible_message("<span class='danger'>\The [src] blows apart!</span>")
 	var/turf/Tsec = get_turf(src)
 
-	new /obj/item/stack/rods(Tsec)
-	new /obj/item/stack/rods(Tsec)
+	PoolOrNew(/obj/item/stack/rods, Tsec)
+	PoolOrNew(/obj/item/stack/rods, Tsec)
 	new /obj/item/stack/cable_coil/cut(Tsec)
 
 	if(cell)
@@ -226,7 +225,7 @@
 		turn_off()
 		return
 
-	if(cell.charge < (charge_use * CELLRATE))
+	if(cell.charge < charge_use)
 		turn_off()
 		return
 
@@ -244,13 +243,13 @@
 	C.forceMove(src)
 	cell = C
 	powercheck()
-	to_chat(usr, "<span class='notice'>You install [C] in [src].</span>")
+	usr << "<span class='notice'>You install [C] in [src].</span>"
 
 /obj/vehicle/proc/remove_cell(var/mob/living/carbon/human/H)
 	if(!cell)
 		return
 
-	to_chat(usr, "<span class='notice'>You remove [cell] from [src].</span>")
+	usr << "<span class='notice'>You remove [cell] from [src].</span>"
 	cell.forceMove(get_turf(H))
 	H.put_in_hands(cell)
 	cell = null
@@ -286,8 +285,7 @@
 	load = C
 
 	if(load_item_visible)
-		C.plane = plane
-		C.layer = VEHICLE_LOAD_LAYER		//so it sits above the vehicle
+		C.layer = layer + 0.1		//so it sits above the vehicle
 
 	if(ismob(C))
 		buckle_mob(C)
@@ -338,7 +336,7 @@
 	else
 		load.pixel_x = initial(load.pixel_x)
 		load.pixel_y = initial(load.pixel_y)
-	load.reset_plane_and_layer()
+	load.layer = initial(load.layer)
 
 	if(ismob(load))
 		unbuckle_mob(load)
@@ -359,7 +357,7 @@
 		return
 	visible_message("<span class='danger'>\The [user] [attack_message] the \the [src]!</span>")
 	if(istype(user))
-		admin_attacker_log(user, "attacked \the [src]")
+		user.attack_log += text("\[[time_stamp()]\] <font color='red'>attacked \the [src.name]</font>")
 		user.do_attack_animation(src)
 	src.health -= damage
 	if(prob(10))
