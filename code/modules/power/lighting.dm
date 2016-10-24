@@ -599,9 +599,9 @@ obj/machinery/light/proc/burn_out()
 	item_state = "c_tube"
 	matter = list("glass" = 100)
 
-	brightness_range = 8	// luminosity when on, also used in power calculation
-	brightness_power = 3
-	brightness_color = "#FFFFFF"
+	brightness_range = 5 // luminosity when on, also used in power calculation
+	brightness_power = 7
+	brightness_color = COLOUR_LTEMP_FLURO
 	lighting_modes = list(
 		"emergency_lighting" = list(l_range = 5, l_power = 1, l_color = "#da0205"),
 		)
@@ -609,7 +609,7 @@ obj/machinery/light/proc/burn_out()
 /obj/item/weapon/light/tube/large
 	w_class = ITEM_SIZE_SMALL
 	name = "large light tube"
-	brightness_range = 8
+	brightness_range = 5
 	brightness_power = 5
 
 /obj/item/weapon/light/bulb
@@ -622,8 +622,8 @@ obj/machinery/light/proc/burn_out()
 	matter = list("glass" = 100)
 
 	brightness_range = 4
-	brightness_power = 2
-	brightness_color = "#a0a080"
+	brightness_power = 5
+	brightness_color = COLOUR_LTEMP_100W_TUNGSTEN
 	lighting_modes = list(
 		"emergency_lighting" = list(l_range = 4, l_power = 1, l_color = "#da0205"),
 		)

@@ -12,7 +12,7 @@
 
 	var/icon_keyboard = "generic_key"
 	var/icon_screen = "generic"
-	var/light_range_on = 2
+	var/light_range_on = 1
 	var/light_power_on = 1
 	var/overlay_layer
 
@@ -87,8 +87,8 @@
 	text = replacetext(text, "\n", "<BR>")
 	return text
 
-/obj/machinery/computer/attackby(I as obj, user as mob)
-	if(istype(I, /obj/item/weapon/screwdriver) && circuit)
+/obj/machinery/computer/attackby(var/obj/item/I, var/mob/user)
+	if(I.isscrewdriver() && circuit)
 		playsound(src.loc, 'sound/items/Screwdriver.ogg', 50, 1)
 		if(do_after(user, 20, src))
 			var/obj/structure/computerframe/A = new /obj/structure/computerframe( src.loc )
