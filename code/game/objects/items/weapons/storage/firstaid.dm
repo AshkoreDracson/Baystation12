@@ -10,7 +10,9 @@
 /obj/item/weapon/storage/firstaid
 	name = "first-aid kit"
 	desc = "It's an emergency medical kit for those serious boo-boos."
+	icon = 'maps/curie/icons/Medkits.dmi'
 	icon_state = "firstaid"
+	item_state = "firstaid"
 	throw_speed = 2
 	throw_range = 8
 	max_w_class = ITEM_SIZE_SMALL
@@ -92,7 +94,7 @@
 /obj/item/weapon/storage/firstaid/combat
 	name = "combat medical kit"
 	desc = "Contains advanced medical treatments."
-	icon_state = "bezerk"
+	icon_state = "brute2"
 	item_state = "firstaid-advanced"
 
 	startswith = list(

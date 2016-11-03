@@ -29,7 +29,6 @@
 /obj/item/device/flashlight/attack_self(mob/user)
 	if(!isturf(user.loc))
 		to_chat(user, "You cannot turn the light on while in this [user.loc].")//To prevent some lighting anomalities.
-
 		return 0
 	on = !on
 	update_icon()
@@ -227,3 +226,10 @@
 
 /obj/item/device/flashlight/slime/attack_self(mob/user)
 	return //Bio-luminescence does not toggle.
+
+/obj/item/device/flashlight/maglite
+	name = "tactical flashlight"
+	icon = 'icons/nienhaus/Mag-lite.dmi'
+	icon_state = "maglight"
+	desc = "Tacticool"
+
