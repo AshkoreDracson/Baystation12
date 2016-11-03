@@ -159,10 +159,10 @@
 	opacity = 1
 	assembly_type = /obj/structure/door_assembly/door_assembly_hatch
 	standard_feedback_accept = 0
-	standard_feedback_lock = 'sound/machines/theta_button_door_locked_01.wav'
-	standard_feedback_deny =  'sound/machines/theta_button_door_open_01.wav'
-	standard_feedback_unlock = 'sound/machines/theta_button_door_unlock_01.wav'
-
+	standard_feedback_lock = 'sound/machines/tau_door_locked_01.wav'
+	standard_feedback_deny =  'sound/machines/tau_door_close_01.wav'
+	standard_feedback_unlock = 'sound/machines/tau_door_unlock_01.wav'
+	
 /obj/machinery/door/airlock/maintenance_hatch
 	name = "Maintenance Hatch"
 	icon = 'icons/obj/doors/Doorhatchmaint2.dmi'
@@ -938,7 +938,7 @@ About the new airlock wires panel:
 	//if the door is unpowered then it doesn't make sense to hear the woosh of a pneumatic actuator
 	if(arePowerSystemsOn())
 		playsound(src.loc, open_sound_powered, 100, 1)
-		playsound(src.loc, standard_feedback_accept, 100, 1)
+		playsound(src.loc, standard_feedback_accept, 50, 0)
 	else
 		playsound(src.loc, open_sound_unpowered, 100, 1)
 
@@ -991,9 +991,9 @@ About the new airlock wires panel:
 
 	use_power(360)	//360 W seems much more appropriate for an actuator moving an industrial door capable of crushing people
 	if(arePowerSystemsOn())
-		playsound(src.loc, close_sound_powered, 100, 1)
+		playsound(src.loc, close_sound_powered, 50, 0)
 	else
-		playsound(src.loc, open_sound_unpowered, 100, 1)
+		playsound(src.loc, open_sound_unpowered, 50, 0)
 
 	..()
 
@@ -1006,7 +1006,7 @@ About the new airlock wires panel:
 	src.locked = 1
 	for(var/mob/M in range(1,src))
 		M.show_message("You hear a click from the bottom of the door.", 2)
-		playsound(src.loc, standard_feedback_lock, 100, 1)
+		playsound(src.loc, standard_feedback_lock, 50, 0)
 	update_icon()
 	return 1
 
@@ -1020,7 +1020,7 @@ About the new airlock wires panel:
 	src.locked = 0
 	for(var/mob/M in range(1,src))
 		M.show_message("You hear a click from the bottom of the door.", 2)
-		playsound(src.loc, standard_feedback_unlock, 100, 1)
+		playsound(src.loc, standard_feedback_unlock, 50, 0)
 	update_icon()
 	return 1
 
