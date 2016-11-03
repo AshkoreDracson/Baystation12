@@ -31,9 +31,26 @@
 	var/secured_wires = 0
 	var/datum/wires/airlock/wires = null
 
-	var/open_sound_powered = 'sound/machines/airlock.ogg'
-	var/open_sound_unpowered = 'sound/machines/airlock_creaking.ogg'
+	// var/open_sound_powered = 'sound/machines/door_metro_open_1.wav'
+	 var/open_sound_unpowered = 'sound/machines/airlock_creaking.ogg'
+	
+	var/open_sound_powered = 'sound/machines/door_metro_open_1.wav'
+	var/close_sound_powered = 'sound/machines/door_metro_close_1.wav'
+	
+	var/maint_feedback_accept = 'sound/machines/upsilon_button_door_open_01.wav'
+	var/maint_feedback_lock = 'sound/machines/upsilon_button_door_locked_01.wavv'
+	var/maint_feedback_deny = 'sound/machines/upsilon_button_door_close_01.wav'
+	var/maint_feedback_unlock = 'sound/machines/upsilon_button_door_unlock_01.wav'
 
+	var/standard_feedback_accept = 'sound/machines/theta_button_door_open_01.wav'
+	var/standard_feedback_lock = 'sound/machines/theta_button_door_locked_01.wavv'
+	var/standard_feedback_deny = 'sound/machines/theta_button_door_close_01.wav'
+	var/standard_feedback_unlock = 'sound/machines/theta_button_door_unlock_01.wav'
+
+	var/highsec_feedback_lock = 'sound/machines/theta_button_door_locked_01.wavv'
+	var/highsec_feedback_deny = 'sound/machines/theta_button_door_open_01.wav'
+	var/highsec_feedback_unlock = 'sound/machines/theta_button_door_unlock_01.wav'
+	
 	var/door_crush_damage = DOOR_CRUSH_DAMAGE
 
 	var/_wifi_id
@@ -88,11 +105,19 @@
 	name = "Maintenance Access"
 	icon = 'icons/obj/doors/Doormaint.dmi'
 	assembly_type = /obj/structure/door_assembly/door_assembly_mai
+	standard_feedback_accept = maint_feedback_accept
+	standard_feedback_lock = maint_feedback_lock
+	standard_feedback_deny =  maint_feedback_deny
+	standard_feedback_unlock = maint_feedback_unlock
 
 /obj/machinery/door/airlock/external
 	name = "External Airlock"
 	icon = 'icons/obj/doors/Doorext.dmi'
 	assembly_type = /obj/structure/door_assembly/door_assembly_ext
+	standard_feedback_accept = 0
+	standard_feedback_lock = highsec_feedback_lock
+	standard_feedback_deny =  highsec_feedback_deny
+	standard_feedback_unlock = highsec_feedback_unlock
 
 /obj/machinery/door/airlock/sol
 	name = "Airlock"
@@ -103,7 +128,6 @@
 	name = "Glass Airlock"
 	icon = 'icons/obj/doors/Doorglass.dmi'
 	hitsound = 'sound/effects/Glasshit.ogg'
-	open_sound_powered = 'sound/machines/windowdoor.ogg'
 	door_crush_damage = DOOR_CRUSH_DAMAGE*0.75
 	maxhealth = 300
 	explosion_resistance = 5
@@ -122,6 +146,10 @@
 	opacity = 1
 	secured_wires = 1
 	assembly_type = /obj/structure/door_assembly/door_assembly_highsecurity //Until somebody makes better sprites.
+	standard_feedback_accept = 0
+	standard_feedback_lock = highsec_feedback_lock
+	standard_feedback_deny =  highsec_feedback_deny
+	standard_feedback_unlock = highsec_feedback_unlock
 
 /obj/machinery/door/airlock/vault/bolted
 	icon_state = "door_locked"
@@ -139,6 +167,10 @@
 	explosion_resistance = 20
 	opacity = 1
 	assembly_type = /obj/structure/door_assembly/door_assembly_hatch
+	standard_feedback_accept = 0
+	standard_feedback_lock = highsec_feedback_lock
+	standard_feedback_deny =  highsec_feedback_deny
+	standard_feedback_unlock = highsec_feedback_unlock
 
 /obj/machinery/door/airlock/maintenance_hatch
 	name = "Maintenance Hatch"
@@ -146,6 +178,10 @@
 	explosion_resistance = 20
 	opacity = 1
 	assembly_type = /obj/structure/door_assembly/door_assembly_mhatch
+	standard_feedback_accept = maint_feedback_accept
+	standard_feedback_lock = maint_feedback_lock
+	standard_feedback_deny =  maint_feedback_deny
+	standard_feedback_unlock = maint_feedback_unlock
 
 /obj/machinery/door/airlock/glass_command
 	name = "Maintenance Hatch"
@@ -582,8 +618,7 @@ About the new airlock wires panel:
 		if("deny")
 			if(density && src.arePowerSystemsOn())
 				flick("door_deny", src)
-				if(secured_wires)
-					playsound(src.loc, 'sound/machines/buzz-two.ogg', 50, 0)
+				playsound(src.loc, standard_feedback_deny, 50, 0)
 	return
 
 /obj/machinery/door/airlock/attack_ai(mob/user as mob)
@@ -908,6 +943,7 @@ About the new airlock wires panel:
 	//if the door is unpowered then it doesn't make sense to hear the woosh of a pneumatic actuator
 	if(arePowerSystemsOn())
 		playsound(src.loc, open_sound_powered, 100, 1)
+		playsound(src.loc, standard_feedback_accept, 100, 1)
 	else
 		playsound(src.loc, open_sound_unpowered, 100, 1)
 
@@ -947,7 +983,7 @@ About the new airlock wires panel:
 			for(var/atom/movable/AM in turf)
 				if(AM.blocks_airlock())
 					if(world.time > next_beep_at)
-						playsound(src.loc, 'sound/machines/buzz-two.ogg', 50, 0)
+						playsound(src.loc, standard_feedback_close, 50, 0)
 						next_beep_at = world.time + SecondsToTicks(10)
 					close_door_at = world.time + 6
 					return
@@ -960,7 +996,7 @@ About the new airlock wires panel:
 
 	use_power(360)	//360 W seems much more appropriate for an actuator moving an industrial door capable of crushing people
 	if(arePowerSystemsOn())
-		playsound(src.loc, open_sound_powered, 100, 1)
+		playsound(src.loc, close_sound_powered, 100, 1)
 	else
 		playsound(src.loc, open_sound_unpowered, 100, 1)
 
@@ -975,6 +1011,7 @@ About the new airlock wires panel:
 	src.locked = 1
 	for(var/mob/M in range(1,src))
 		M.show_message("You hear a click from the bottom of the door.", 2)
+		playsound(src.loc, standard_feedback_lock, 100, 1)
 	update_icon()
 	return 1
 
@@ -988,6 +1025,7 @@ About the new airlock wires panel:
 	src.locked = 0
 	for(var/mob/M in range(1,src))
 		M.show_message("You hear a click from the bottom of the door.", 2)
+		playsound(src.loc, standard_feedback_unlock, 100, 1)
 	update_icon()
 	return 1
 
