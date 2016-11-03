@@ -10,7 +10,7 @@
 /obj/item/weapon/storage/firstaid
 	name = "first-aid kit"
 	desc = "It's an emergency medical kit for those serious boo-boos."
-	icon = 'maps/curie/icons/Medkits.dmi'
+	icon = 'icons/nienhaus/Medkits.dmi'
 	icon_state = "firstaid"
 	item_state = "firstaid"
 	throw_speed = 2
