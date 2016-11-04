@@ -110,6 +110,11 @@
 	standard_feedback_deny =  'sound/machines/tau_door_close_01.wav'
 	standard_feedback_unlock = 'sound/machines/tau_door_unlock_01.wav'
 
+/obj/machinery/door/airlock/external/bolted_open
+	icon_state = "door_open"
+	density = 0
+	locked = 1
+
 /obj/machinery/door/airlock/sol
 	name = "Airlock"
 	icon = 'icons/obj/doors/Doorsol.dmi'
